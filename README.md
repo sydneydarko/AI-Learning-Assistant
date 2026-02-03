@@ -438,5 +438,177 @@ Cursor must:
 
 (Otherwise proceed with best defaults: **no auth**, **hybrid OCR**, **PDF + Markdown**.)
 
----
-END
+
+Here is the Frontend-Only Master README for Luma.
+
+This document is strictly scoped for Mobile (React Native/Expo). It mocks all backend logic and AI processing so you can build a fully interactive, high-fidelity UI prototype immediately without setting up servers.
+
+Luma — Frontend Concept (Apple-Style UI MVP)
+0. Project Vision
+Luma is a "Liquid Glass" productivity app. This codebase is a Frontend-Only Prototype designed to validate the visual identity, animations, and user flow.
+
+No Backend: Data is stored locally (Zustand/MMKV).
+
+Mocked AI: OCR and Note Generation are simulated with realistic delays to perfect the loading states and animations.
+
+1. Design System (Strict Implementation)
+Cursor Rule: adhere strictly to these tokens. Do not deviate.
+
+1.1 Color Palette ("Focus & Trust")
+
+Token	Hex Value	Usage
+colors.primary	#0066CC	Science Blue (Buttons, Active Tabs)
+colors.accent	#5E5CE6	Electric Indigo (Gradients, AI States)
+colors.background	#F5F5F7	Athens Gray (Main Background)
+colors.surface	#FFFFFF	White (Cards, Sheets)
+colors.text.main	#1D1D1F	Ink (Headings, Body)
+colors.text.sub	#86868B	Manatee (Metadata)
+colors.glass	rgba(255,255,255,0.85)	Frosted glass elements
+1.2 Typography (SF Pro)
+
+H1 (Display): 32px, Bold, tracking -0.5px.
+
+H2 (Section): 22px, Semibold, tracking -0.3px.
+
+Body: 17px, Regular, line-height 24px (Relaxed).
+
+Mono: 14px, SF Mono (for code/math).
+
+1.3 The "Physics" (Animation Rules)
+
+Library -> Detail: Shared Element Transition (The card expands to fill the screen).
+
+Capture -> Editor: No spinners. A "Light Shimmer" scans the image, then morphs into the editor.
+
+Touch: All touchables must have activeOpacity={0.7} or a scale(0.96) spring animation.
+
+2. Tech Stack (Frontend Only)
+Framework: Expo SDK 50+ (Managed Workflow).
+
+Routing: expo-router (File-based navigation).
+
+Styling: nativewind (Tailwind CSS) + clsx.
+
+Animation: react-native-reanimated (Crucial for the "Glass" feel).
+
+Blur: expo-blur (For tab bars and headers).
+
+State: zustand (Store notes locally).
+
+Persistence: react-native-mmkv (Fast local storage).
+
+Markdown: react-native-markdown-display.
+
+3. Directory Structure
+Plaintext
+/apps/mobile
+  /assets          # Images, Fonts
+  /src
+    /app           # Expo Router screens
+      (tabs)       # _layout.tsx (The Custom Glass Tab Bar)
+      capture      # Camera view
+      note/[id]    # Editor view
+    /components
+      /ui          # Atoms (GlassButton, BlurCard)
+      /anim        # Reanimated components (ShimmerView)
+    /store         # Zustand (useNotesStore)
+    /theme         # Tailwind config / Tokens
+    /mocks         # Dummy data & Mock AI service
+4. Component Specs (The "Apple" Feel)
+A. The "Smart Glass" Tab Bar
+
+Don't use the default native tab bar.
+
+Component: A floating BlurView capsule positioned 30px from the bottom.
+
+Styling: absolute bottom-8 left-10 right-10 h-16 rounded-full overflow-hidden.
+
+Shadow: Soft, diffuse shadow shadow-lg shadow-black/10.
+
+Icons: 3 Icons (Grid, Camera, Person). The "Camera" icon is larger and sits in the center.
+
+B. The "Liquid" Capture Button
+
+Visual: A 70px circle with a linear gradient (primary to accent).
+
+Animation: Use a "Breathing" animation (slow scale 1.0 -> 1.05) when the camera is active.
+
+Press: On press, it triggers a heavy haptic feedback (expo-haptics) and shrinks to 0.9x.
+
+C. The Note Card (Bento Grid)
+
+Container: White background, rounded-3xl (24px).
+
+Content:
+
+Top 50%: A mini-preview of the markdown content (use a masked view).
+
+Bottom 50%: Title (Bold) + Tags (Pill shapes).
+
+5. Implementation Phases for Cursor
+Phase 1: The Shell & Design System
+
+Setup: Init Expo with TypeScript & NativeWind.
+
+Config: Add the colors and fonts to tailwind.config.js.
+
+Navigation: Create the (tabs) layout and implement the Custom Floating Glass Tab Bar.
+
+Phase 2: The Library (Home)
+
+Store: Create useNotesStore with Zustand.
+
+Mock Data: Populate with 5 "Perfect" notes (formatted nicely with Markdown).
+
+UI: Build the Masonry/Bento Grid to display these notes.
+
+Transition: Make the cards clickable -> navigate to /note/[id].
+
+Phase 3: The Capture Experience (Visuals Only)
+
+View: Create a full-screen view for /capture.
+
+Mock Camera: Since this is a concept, you can use a static image or the real expo-camera if preferred.
+
+The "Magic" Button: Build the Liquid Button.
+
+The Scan Effect:
+
+On button press: Freeze the image.
+
+Overlay a gradient bar that moves top-to-bottom (Reanimated).
+
+Delay 2000ms (Simulate AI).
+
+Navigate to Editor.
+
+Phase 4: The Editor
+
+Layout: Clean white screen.
+
+Renderer: Implement react-native-markdown-display with custom styling (SF Pro fonts).
+
+Interactivity: Add a "Warning" interaction.
+
+Find specific words in the mock text.
+
+Underline them in orange.
+
+On tap -> show a small tooltip.
+
+6. Mock Data Contract (for src/mocks/notes.ts)
+Since we have no backend, hardcode this data structure to test the UI.
+
+TypeScript
+export const MOCK_NOTES = [
+  {
+    id: '1',
+    title: 'Cell Membrane Biology',
+    date: '2 hrs ago',
+    tag: 'Biology 101',
+    // High fidelity markdown to test rendering
+    content: `# Structure\nThe **phospholipid bilayer** is semi-permeable.\n\n## Components\n1. Proteins\n2. Cholesterol`, 
+    confidenceScore: 0.98,
+  },
+  // ... add 4 more
+];
