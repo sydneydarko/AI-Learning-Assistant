@@ -1,26 +1,42 @@
 import { Tabs } from "expo-router";
 
 import { HapticTab } from "@/components/haptic-tab";
-import { GlassTabBar } from "@/components/ui/GlassTabBar";
 import { IconSymbol } from "@/components/ui/icon-symbol";
-import { Colors } from "@/constants/theme";
-import { useColorScheme } from "@/hooks/use-color-scheme";
+import { spacing } from "@/src/theme/tokens";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-  const tint = Colors[colorScheme ?? "light"].tint;
+  const insets = useSafeAreaInsets();
+  const bottomPadding = insets.bottom > 0 ? insets.bottom : 8;
+  const totalHeight = spacing.tabBarHeight + bottomPadding;
 
   return (
     <Tabs
-      tabBar={(props) => <GlassTabBar {...props} />}
       screenOptions={{
-        tabBarActiveTintColor: tint,
+        tabBarActiveTintColor: "#fff",
         tabBarInactiveTintColor: "#86868B",
         headerShown: false,
         tabBarButton: HapticTab,
-        tabBarStyle: { position: "absolute" },
-        tabBarItemStyle: { justifyContent: "center", alignItems: "center" },
-        tabBarIconStyle: { marginTop: 2 },
+        tabBarStyle: { 
+          position: "absolute",
+          backgroundColor: "#1C1C1E",
+          borderTopWidth: 0.5,
+          borderTopColor: "rgba(255,255,255,0.1)",
+          height: totalHeight,
+          paddingBottom: bottomPadding,
+          paddingHorizontal: 10,
+        },
+        tabBarItemStyle: { 
+          justifyContent: "center", 
+          alignItems: "center",
+          flex: 1,
+          paddingTop: 25,
+        },
+        tabBarIconStyle: { 
+          marginTop: 0,
+          marginBottom: 0,
+          flex: 0,
+        },
         tabBarShowLabel: false,
       }}
     >
@@ -28,21 +44,21 @@ export default function TabLayout() {
         name="index"
         options={{
           title: "Library",
-          tabBarIcon: ({ color }) => <IconSymbol size={26} name="square.grid.2x2.fill" color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="square.grid.2x2.fill" color={color} />,
         }}
       />
       <Tabs.Screen
         name="capture"
         options={{
           title: "Capture",
-          tabBarIcon: ({ color }) => <IconSymbol size={30} name="camera.fill" color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="camera.fill" color={color} />,
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="profile"
         options={{
           title: "Person",
-          tabBarIcon: ({ color }) => <IconSymbol size={26} name="person.fill" color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,
         }}
       />
     </Tabs>

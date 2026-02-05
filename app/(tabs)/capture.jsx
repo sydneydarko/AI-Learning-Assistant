@@ -49,7 +49,9 @@ export default function CaptureScreen() {
     router.push(`/note/${note.id}`);
   }, [addNote, router]);
 
-  const tabBarTotalHeight = 68 + 16 + (insets.bottom > 0 ? insets.bottom : 16);
+  // Match the same calculation used in GlassTabBar and index.jsx
+  const bottomPadding = insets.bottom > 0 ? insets.bottom : 8;
+  const tabBarTotalHeight = 68 + bottomPadding;
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -74,7 +76,7 @@ export default function CaptureScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: "#1C1C1E",
   },
   cameraArea: {
     flex: 1,
@@ -92,12 +94,12 @@ const styles = StyleSheet.create({
   mockLabel: {
     fontSize: 22,
     fontWeight: "600",
-    color: colors.text.sub,
+    color: "#9CA3AF",
     marginBottom: 8,
   },
   mockHint: {
     fontSize: 17,
-    color: colors.text.sub,
+    color: "#9CA3AF",
     opacity: 0.8,
   },
   mockImage: {

@@ -1,106 +1,108 @@
-import { useNotesStore } from "@/src/store/useNotesStore";
-import { colors, spacing } from "@/src/theme/tokens";
-import { useRouter } from "expo-router";
-import { useCallback } from "react";
-import {
-    FlatList,
-    Pressable,
-    StyleSheet,
-    Text,
-    View,
-} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { spacing } from "@/src/theme/tokens";
+import { Pressable, ScrollView, StyleSheet, Text, Touchable, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Svg, { Circle, Defs, LinearGradient, Stop } from "react-native-svg";
 
-function cleanPreviewText(content) {
-  return content
-    .replace(/#{1,6}\s/g, "") // Remove heading markers
-    .replace(/\*\*/g, "") // Remove bold markers
-    .replace(/\*/g, "") // Remove italic markers
-    .replace(/\[illegible\]/g, "") // Remove warning markers
-    .replace(/`/g, "") // Remove code markers
-    .replace(/^[-*]\s/gm, "") // Remove list markers
-    .replace(/^\d+\.\s/gm, "") // Remove numbered list markers
-    .replace(/\n+/g, " ") // Replace newlines with spaces
-    .replace(/\s+/g, " ") // Collapse multiple spaces
-    .trim();
-}
-
-function NoteCard({ note, onPress }) {
-  const preview = cleanPreviewText(note.content).slice(0, 120);
-  const displayPreview = preview.length < note.content.length ? preview + "…" : preview;
+// Circular Progress Component
+function CircularProgress({ percentage, size = 80, strokeWidth = 8, color, label, sublabel }) {
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
   return (
-    <Pressable
-      onPress={() => onPress(note.id)}
-      style={({ pressed }) => [
-        styles.card,
-        pressed && styles.cardPressed,
-      ]}
-    >
-      <View style={styles.cardPreview}>
-        <Text style={styles.previewText} numberOfLines={4}>
-          {displayPreview}
-        </Text>
-      </View>
-      <View style={styles.cardFooter}>
-        <Text style={styles.cardTitle} numberOfLines={2}>
-          {note.title}
-        </Text>
-        <View style={styles.meta}>
-          <View style={styles.pill}>
-            <Text style={styles.pillText} numberOfLines={1}>
-              {note.tag}
-            </Text>
-          </View>
-          <Text style={styles.date}>{note.date}</Text>
+    <View style={styles.progressContainer}>
+      <View style={{ width: size, height: size }}>
+        <Svg width={size} height={size}>
+          <Defs>
+            <LinearGradient id={`grad-${color}`} x1="0%" y1="0%" x2="100%" y2="100%">
+              <Stop offset="0%" stopColor={color} stopOpacity="1" />
+              <Stop offset="100%" stopColor={color} stopOpacity="0.8" />
+            </LinearGradient>
+          </Defs>
+          {/* Background circle */}
+          <Circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            stroke="#2A2A2C"
+            strokeWidth={strokeWidth}
+            fill="none"
+          />
+          {/* Progress circle */}
+          <Circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            stroke={`url(#grad-${color})`}
+            strokeWidth={strokeWidth}
+            fill="none"
+            strokeDasharray={circumference}
+            strokeDashoffset={strokeDashoffset}
+            strokeLinecap="round"
+            rotation="-90"
+            origin={`${size / 2}, ${size / 2}`}
+          />
+        </Svg>
+        <View style={[styles.progressTextContainer, { width: size, height: size }]}>
+          <Text style={styles.progressPercentage}>{label}</Text>
         </View>
       </View>
-    </Pressable>
+      <Text style={styles.progressLabel}>{sublabel}</Text>
+    </View>
   );
 }
 
-export default function LibraryScreen() {
+
+export default function HomeScreen() {
   const insets = useSafeAreaInsets();
-  const router = useRouter();
-  const notes = useNotesStore((state) => state.notes);
 
-  const handlePressNote = useCallback(
-    (id) => {
-      router.push(`/note/${id}`);
-    },
-    [router]
-  );
-
-  const renderItem = useCallback(
-    ({ item }) => <NoteCard note={item} onPress={handlePressNote} />,
-    [handlePressNote]
-  );
-
-  const keyExtractor = useCallback((item) => item.id, []);
-
-  const tabBarTotalHeight =
-    spacing.tabBarHeight +
-    spacing.tabBarBottom +
-    (insets.bottom > 0 ? insets.bottom : spacing.tabBarBottom);
+  // Calculate proper bottom padding
+  const bottomPadding = insets.bottom > 0 ? insets.bottom : 8;
+  const tabBarTotalHeight = spacing.tabBarHeight + bottomPadding + 20;
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Library</Text>
-      </View>
-      <FlatList
-        data={notes}
-        renderItem={renderItem}
-        keyExtractor={keyExtractor}
-        numColumns={2}
-        key="two-column"
-        contentContainerStyle={[
-          styles.listContent,
-          { paddingBottom: tabBarTotalHeight + 16 },
-        ]}
-        columnWrapperStyle={styles.row}
+    <View style={[styles.container, { paddingTop: insets.top + 16 }]}>
+      <ScrollView 
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: tabBarTotalHeight }]}
         showsVerticalScrollIndicator={false}
-      />
+      >
+        {/* Header */}
+        <View style={styles.header}>
+          <View style={styles.headerTop}>
+            <TouchableOpacity style={styles.avatar}>
+              <Ionicons name="person-circle" size={32} color="#fff" />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.notificationButton}>
+              <Ionicons name="notifications" size={26} color="#fff" />
+            </TouchableOpacity>
+          </View>
+
+          <Text style={styles.greetingText}>Welcome Edmund!</Text>
+          <Text style={styles.titleText}>Welcome Back!</Text>
+        </View>
+
+        {/* Stats Row */}
+        <View style={styles.statsRow}>
+          <CircularProgress
+            percentage={73}
+            size={90}
+            strokeWidth={10}
+            color="#84CC16"
+            label="73%"
+            sublabel="Today's Learning Progress"
+          />
+          <CircularProgress
+            percentage={57}
+            size={90}
+            strokeWidth={10}
+            color="#22C55E"
+            label="4/7h"
+            sublabel="Total Learning Hours"
+          />
+        </View>
+
+      </ScrollView>
     </View>
   );
 }
@@ -108,92 +110,173 @@ export default function LibraryScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: "#1C1C1E",
+  },
+  scrollContent: {
+    paddingHorizontal: 20,
   },
   header: {
-    paddingHorizontal: 24,
-    paddingTop: 20,
-    paddingBottom: 16,
+    marginBottom: 24,
   },
-  headerTitle: {
-    fontSize: 34,
-    fontWeight: "700",
-    letterSpacing: -0.6,
-    color: colors.text.main,
-  },
-  listContent: {
-    paddingHorizontal: 20,
-    paddingTop: 8,
-  },
-  row: {
+  headerTop: {
+    flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 14,
-    gap: 12,
+    alignItems: "center",
+    marginBottom: 16,
   },
-  card: {
-    flex: 1,
-    maxWidth: "48%",
-    backgroundColor: colors.surface,
-    borderRadius: 20,
-    overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.08,
-    shadowRadius: 10,
-    elevation: 4,
+  avatar: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: "#2A2A2C",
+    justifyContent: "center",
+    alignItems: "center",
   },
-  cardPressed: {
-    opacity: 0.8,
-    transform: [{ scale: 0.98 }],
+  notificationButton: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: "#2A2A2C",
+    justifyContent: "center",
+    alignItems: "center",
   },
-  cardPreview: {
-    height: 110,
-    padding: 14,
-    paddingTop: 16,
-    justifyContent: "flex-start",
-    backgroundColor: "#F8F8F8",
-    borderBottomWidth: 1,
-    borderBottomColor: "#F0F0F0",
+  greetingText: {
+    fontSize: 14,
+    color: "#9CA3AF",
+    marginBottom: 4,
   },
-  previewText: {
-    fontSize: 13,
-    color: colors.text.sub,
-    lineHeight: 19,
-  },
-  cardFooter: {
-    padding: 14,
-    paddingTop: 12,
-    backgroundColor: colors.surface,
-  },
-  cardTitle: {
-    fontSize: 15,
+  titleText: {
+    fontSize: 32,
     fontWeight: "700",
-    color: colors.text.main,
-    marginBottom: 8,
-    letterSpacing: -0.2,
-    lineHeight: 20,
+    color: "#fff",
+    letterSpacing: -0.5,
+    lineHeight: 38,
   },
-  meta: {
+  statsRow: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginBottom: 32,
+    paddingVertical: 16,
+  },
+  progressContainer: {
+    alignItems: "center",
+  },
+  progressTextContainer: {
+    position: "absolute",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  progressPercentage: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#fff",
+  },
+  progressLabel: {
+    fontSize: 12,
+    color: "#9CA3AF",
+    marginTop: 8,
+    textAlign: "center",
+    maxWidth: 100,
+  },
+  cardsContainer: {
+    flexDirection: "row",
+    gap: 16,
+    marginBottom: 24,
+  },
+  classCard: {
+    flex: 1,
+    borderRadius: 30,
+    padding: 20,
+    minHeight: 240,
+    position: "relative",
+  },
+  classCardTopRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 16,
+  },
+  classIconCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "rgba(0,0,0,0.1)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  levelBadge: {
     flexDirection: "row",
     alignItems: "center",
-    flexWrap: "wrap",
-    gap: 6,
+    backgroundColor: "rgba(255,255,255,0.9)",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    alignSelf: "flex-start",
+    marginBottom: 12,
   },
-  pill: {
-    backgroundColor: colors.primary + "1A",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-    maxWidth: "60%",
-  },
-  pillText: {
-    fontSize: 11,
-    fontWeight: "600",
-    color: colors.primary,
-  },
-  date: {
+  levelText: {
     fontSize: 12,
-    color: colors.text.sub,
-    fontWeight: "500",
+    fontWeight: "600",
+    color: "#000",
+  },
+  classTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#000",
+    marginBottom: 24,
+  },
+  classStatsRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: "auto",
+    paddingTop: 16,
+  },
+  statCircle: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    borderWidth: 3,
+    borderColor: "#000",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.05)",
+  },
+  statText: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#000",
+  },
+  studyProgressCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    borderRadius: 30,
+    padding: 20,
+    marginBottom: 24,
+    gap: 16,
+  },
+  studyProgressLeft: {
+    justifyContent: "center",
+  },
+  studyProgressLabel: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#000",
+    lineHeight: 18,
+  },
+  studyProgressChart: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    gap: 3,
+    flex: 1,
+    height: 40,
+  },
+  progressDot: {
+    width: 6,
+    borderRadius: 3,
+  },
+  studyProgressPercentage: {
+    fontSize: 28,
+    fontWeight: "700",
+    color: "#000",
   },
 });
