@@ -1,6 +1,6 @@
-import { Ionicons } from "@expo/vector-icons";
 import { spacing } from "@/src/theme/tokens";
-import { Pressable, ScrollView, StyleSheet, Text, Touchable, TouchableOpacity, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Circle, Defs, LinearGradient, Stop } from "react-native-svg";
 
@@ -78,7 +78,7 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.greetingText}>Welcome Edmund!</Text>
+          <Text style={styles.greetingText}>Welcome Sydney!</Text>
           <Text style={styles.titleText}>Welcome Back!</Text>
         </View>
 
